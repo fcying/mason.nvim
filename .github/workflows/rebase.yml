@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  schedule:
+  - cron: '0 20 * * *'
+  push:
+    branches: [ custom ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+      - name: rebase
+        run: |
+          pwd && ls
+          git config pull.ff only
+          git config --global user.email "bot@bot.com"
+          git config --global user.name "bot"
+
+          git remote add upstream https://github.com/williamboman/mason.nvim
+          git fetch --all
+          git log -3 --oneline
+
+          git rebase upstream/main
+
+          git push --force
